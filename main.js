@@ -123,4 +123,8 @@ globalUnsubscribe = function () {
 	} catch (err) {
 		console.log("Failed to UnSub");
 	}
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 9e34ce45c544b992455294741880783eb3fd0516
