@@ -64,7 +64,7 @@ However, if your application was using cookies on multiple browser windows, you 
 
 This is just one example on how you can use Generate Leave on TCP FIN or RST.  Shoot an email to support@pubnub.com if you have any further integration questions.
 
-#### Global Here Now 
+### Global Here Now 
 
 When Global Here Now is checked, the ``pubnub.hereNow()`` function will return all current uuid's in every channel name that your client is subscribed too. Here is an example of what would be returned in the response of ``pubnub.hereNow()`` function:
 
