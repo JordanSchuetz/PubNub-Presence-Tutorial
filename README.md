@@ -34,11 +34,11 @@ Now that you have turned on Presence, lets discuss what each of these features d
 
 When this number is hit, PubNub will **stop** sending subscribed clients **Join, Leave** or **Timeout** events.  You can set this number as low as **1** which means when **2** or more clients connect to a channel, you will only receive Interval Presence Events as often as the **Interval** is set in your PubNub Admin Dashboard. It is essential that you integrate Presence Interval events into your applications architecture because large groups of users in the same channel sending Presence events will use more messages.
 
-When the number of clients is **less than or equal too** the Announce Max number, this is what a join event will look like:
+When the number of clients is **less than or equal to** the Announce Max number, this is what a join event will look like:
 
 ![Normal Presence Join](./presencetutorialassets/screenshot2.png)
 
-When the number of clients is **greater than** the Announce Max number, this is what a join event will look like:
+When the number of clients is **greater than** the Announce Max number, intead of getting a join event, you will receive the period interval event with the joins since the last interval event:
 
 ![Announce Max Join](./presencetutorialassets/screenshot3.png)
 
