@@ -30,7 +30,7 @@ It's important that you setup the proper settings in your PubNub admin dashboard
 
 Now that you have turned on Presence, lets discuss what each of these features do in the PubNub Admin Dashboard.
 
-#### Announce Max
+### Announce Max
 
 When this number is hit, PubNub will **stop** sending subscribed clients **Join, Leave** or **Timeout** events.  You can set this number as low as **1** which means when **2** or more clients connect to a channel, you will only receive Interval Presence Events as often as the **Interval** is set in your PubNub Admin Dashboard. It is detrimental that you integrate Presence Interval events into your applications architecture because large groups of users in the same channel sending Presence events will use more messages.
 
@@ -44,11 +44,11 @@ When the number of clients is **greater than** the Announce Max number, this is 
 
 It's important to be aware that Presence messages will appear differently depending upon if the occupancy is below or above the announce max.  Note how the UUID on the **join** event is located in the ``uuid:`` section of the message.  However in the **interval** message, ``uuid:`` is ``undefined``.  You will need to archetype logic for each situation in order to prevent disruptions on the clients application.
 
-#### Interval
+### Interval
 
 This number is the interval of how often clients will receive Interval Presence events once the Announce Max number has been exceeded.
 
-#### Presence Deltas
+### Presence Deltas
 
 When you enable Presence Deltas, a list of each clients UUID that has joined and/or left the channel since the last Presence Interval message will be included in the next Presence Interval Message.
 
@@ -56,14 +56,15 @@ When you enable Presence Deltas, a list of each clients UUID that has joined and
 
 In the above screenshot, I have my **Announce Max** set to **2**, which means once **3** clients connect, PubNub will start sending Interval Events.  In this case, since UUID **57ee4b41...** joined the channel **playerlobby**, their UUID is shown in the Interval Event as ``join:``.
 
-#### Generate Leave on TCP FIN or RST
+### Generate Leave on TCP FIN or RST
 
 This feature is very important if you want subscribed clients to receive **leave** events when another client disconnects (this will only occur if the number of current occupants in a channel is under the Announce Max).  If you do not check this feature and a browser window is closed, subscribed clients will not receive the leave event from that disconnected client.  
 
 However, if your application was using cookies on multiple browser windows, you might want to leave this feature unchecked. This is because if the user closes one window and leaves others open, it will send the **leave** event to all subscribed clients even though the client isn't disconnected and still has other windows open.
 
 This is just one example on how you can use Generate Leave on TCP FIN or RST.  Shoot an email to support@pubnub.com if you have any further integration questions.
-s#### Global Here Now 
+
+#### Global Here Now 
 
 When Global Here Now is checked, the ``pubnub.hereNow()`` function will return all current uuid's in every channel name that your client is subscribed too. Here is an example of what would be returned in the response of ``pubnub.hereNow()`` function:
 
