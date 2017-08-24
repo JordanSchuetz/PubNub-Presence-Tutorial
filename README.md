@@ -162,21 +162,23 @@ pubnub.subscribe({
 
 listener = {
   status(response) {
+    if (response.category === "PNConnectedCategory") {
+      hereNow(response.affectedChannels);
+    }
   },
   message(response) {
   },
   presence(response) {
-    //console.log(response)
     if (response.action === "join") {
       for(i=0; i < response.occupancy; i++){
         if(response.uuid !== undefined){
           var uuidMatchJoin = playerList.indexOf(response.uuid);
-          console.log("UUID ARRAY INDEX: ", uuidMatchJoin, "UUID: ", response.uuid)
+          console.log("UUID ARRAY INDEX: ", uuidMatchJoin, "UUID: ", response.uuid);
           if(uuidMatchJoin === -1){
             playerList[playerList.length] = response.uuid;
-            console.log("Insert ", response.uuid, "in array" )
+            console.log("Insert ", response.uuid, "in array" );
           } else {
-            console.log("UUID: ", response.uuid, "is already in the array")
+            console.log("UUID: ", response.uuid, "is already in the array");
           }
         }
       }
@@ -200,8 +202,8 @@ listener = {
         for(i=0; i < response.occupancy; i++){
           var uuidMatchIntervalLeave = playerList.indexOf(response.leave[i]);
           if(uuidMatchIntervalLeave > -1){
-            console.log("REMOVE PLAYER FROM ARRAY", uuidMatchIntervalLeave)
-            playerList.splice(uuidMatchIntervalLeave, 1)
+            console.log("REMOVE PLAYER FROM ARRAY", uuidMatchIntervalLeave);
+            playerList.splice(uuidMatchIntervalLeave, 1);
           }
         }
       }
@@ -211,33 +213,35 @@ listener = {
       for(i=0; i < response.occupancy; i++){
         var uuidMatchLeave = playerList.indexOf(response.uuid);
         if(uuidMatchLeave > -1){
-          console.log("REMOVE PLAYER FROM ARRAY", uuidMatchLeave, "with UUID: ", response.uuid)
-          playerList.splice(uuidMatchLeave, 1)
+          console.log("REMOVE PLAYER FROM ARRAY", uuidMatchLeave, "with UUID: ", response.uuid);
+          playerList.splice(uuidMatchLeave, 1);
         }
       }
     }
-    console.log("Presence UUIDs:", playerList)
+    console.log("Presence UUIDs:", playerList);
   },
 }
 
-function hereNow() {
-  clearInterval(occupancyCounter)
-  pubnub.hereNow(
-  {
-    channel: "playerlobby",
-    includeUUIDs: true,
-    includeState: true
-  },
-  function (status, response) {
-    console.log("hereNow Response: ", response);
-    for(i=0; i < response.totalOccupancy; i++){
-      playerList[i] = response.channels.playerlobby.occupants[i].uuid;
-    }
-    console.log("hereNow UUIDs: ", playerList)
-    pubnub.addListener(listener);
-  });
+pubnub.addListener(listener);
+
+function hereNow(channels) {
+  for (i in channels) {
+    var channel = channels[i];
+    pubnub.hereNow(
+    {
+      channel: channel,
+      includeUUIDs: true,
+      includeState: true
+    },
+    function (status, response) {
+      console.log("hereNow Response: ", response);
+      for(i=0; i < response.totalOccupancy; i++){
+        playerList[i] = response.channels.playerlobby.occupants[i].uuid;
+      }
+      console.log("hereNow UUIDs: ", playerList);
+    });
+  }
 }
-occupancyCounter = setInterval(hereNow, 2000);
 
 // If person leaves or refreshes the window, run the unsubscribe function
 onbeforeunload = function() {
@@ -247,7 +251,7 @@ onbeforeunload = function() {
     // Query to server to unsub sync
     async:false,
     method: "GET",
-    url: "https://pubsub.pubnub.com/v2/presence/sub-key/mySubscribeKey/channel/playerlobby/leave?uuid=" + encodeURIComponent(UniqueID) 
+    url: "https://pubsub.pubnub.com/v2/presence/sub-key/mySubscribeKey/channel/playerlobby/leave?uuid=" + encodeURIComponent(UniqueID)
   }).done(function(jqXHR, textStatus) {
     console.log( "Request done: " + textStatus );
   }).fail(function( jqXHR, textStatus ) {
@@ -329,30 +333,36 @@ globalUnsubscribe = function () {
 };
 ```
 
-When the web page loads, we run a 2000ms timer before the ``hereNow()`` function is called.  This timer is important since if your close and reopen the tab quickly, the occupancy may not update the correctly.  This is because ``hereNow()`` has a slight update delay.  The ``hereNow()`` response has a for loop that iterates through an array and adds occupants to the list.  It then starts the PubNub listener that listeners for status, message and presence events.
+When the PubNub network is successfully connected too, the ``hereNow()`` function is called.  Since you may have joined more than one channel (in your application; this demo only connects to the ``playerlobby`` channel), you need to iterate through all the channels and call hereNow for each one.
+
+Keep in mind that due to the **eventual consistency** reality of realtime distributed network computing, you may not see yourself in this list of occupants returned by the ``hereNow()`` call.  We already know that we are subscribed however, it's just a matter of event consistency to catch up in a matter of milliseconds to possibly seconds.
+
+The ``hereNow()`` response has a for loop that iterates through an array and adds occupants to the list.
  
 ``` javascript
-function hereNow() {
-  clearInterval(occupancyCounter)
-  pubnub.hereNow(
-  {
-    channel: "playerlobby",
-    includeUUIDs: true,
-    includeState: true
-  },
-  function (status, response) {
-    console.log("hereNow Response: ", response);
-    for(i=0; i < response.totalOccupancy; i++){
-      playerList[i] = response.channels.playerlobby.occupants[i].uuid;
-    }
-    console.log("hereNow UUIDs: ", playerList)
-    pubnub.addListener(listener);
-  });
+function hereNow(channels) {
+  for (i in channels) {
+    var channel = channels[i];
+    pubnub.hereNow(
+    {
+      channel: channel,
+      includeUUIDs: true,
+      includeState: true
+    },
+    function (status, response) {
+      console.log("hereNow Response: ", response);
+      for(i=0; i < response.totalOccupancy; i++){
+        playerList[i] = response.channels.playerlobby.occupants[i].uuid;
+      }
+      console.log("hereNow UUIDs: ", playerList);
+    });
+  }
 }
-occupancyCounter = setInterval(hereNow, 2000);
 ```
 
-This is the start of the PubNub listener code that listens for incoming messages from the PubNub channel you are subscribed too.
+The next portion of code is the start of the PubNub listener code.  It listens for incoming messages from the PubNub channel you are subscribed too.
+
+``status(response)`` is called when the client successfully connects to the PubNub network.  When a positive connect callback is received, call the ``hereNow()`` function and pass the channels you are currently subscribed too.
 
 ``response.action === "join"`` will only be triggered when a client joins a channel (under the Announce Max limit).
 
@@ -361,6 +371,9 @@ When a client joins the channel, the program iterates through the array to make 
 ``` javascript
 listener = {
   status(response) {
+    if (response.category === "PNConnectedCategory") {
+      hereNow(response.affectedChannels);
+    }
   },
   message(response) {
   },
@@ -380,7 +393,6 @@ listener = {
         }
       }
     }
-
 ```
 
 The next portion of code handles the logic for interval events that are only activated once the announce max number has been reached.  If the ``response.join`` event is not undefined, iterate through the array and check to see if any of the interval events match with a UUID already in the array.  If the UUID doesn't exist (defined by the -1 index), add it to the array.  Then, if the ``response.leave`` event is not undefined, iterate through the array and check to see if any of the interval events match with a UUID already in the array.  If it does, remove that UUID from the array.
@@ -413,7 +425,7 @@ The next portion of code handles the logic for interval events that are only act
 
 ```
 
-The last section of code listens for a ``response.action`` leave event.  If a leave event is sent (only will be sent if number of clients connected is under Announce Max), the program will iterate through the array and check to see if the UUID that left matches one that is already in the array.  If it is, remove the player from the array.
+The last section of code listens for a ``response.action`` leave event.  If a leave event is sent (only will be sent if number of clients connected is under Announce Max), the program will iterate through the array and check to see if the UUID that left matches one that is already in the array.  If it is, remove the player from the array. In addition, we initiate the listener that will listen for PubNub Status, Message, and Presence events.
 
 ``` javascript
 
@@ -429,7 +441,7 @@ The last section of code listens for a ``response.action`` leave event.  If a le
     console.log("Presence UUIDs:", playerList)
   },
 }
-
+pubnub.addListener(listener);
 ```
 
 ## Wrapping Up
