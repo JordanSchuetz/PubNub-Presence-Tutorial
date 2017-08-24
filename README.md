@@ -66,7 +66,7 @@ This is just one example on how you can use Generate Leave on TCP FIN or RST.  S
 
 ### Global Here Now 
 
-When Global Here Now is checked, the ``pubnub.hereNow()`` function will return all current uuid's in every channel name that your client is subscribed too. Here is an example of what would be returned in the response of ``pubnub.hereNow()`` function:
+When Global Here Now is checked, the ``pubnub.hereNow()`` function will return all current uuid's in every channel name that your client is subscribed too. In order to make the ``hereNow()`` function a global here now, make sure to exclude the channel parameter in your function.  If you include the channel parameter, it will only look at the whos in that specific channel. Here is an example of what would be returned in the response of a global ``pubnub.hereNow()`` function:
 
 ```
 {
@@ -149,8 +149,8 @@ document.write("Your Client's UUID is: ", UniqueID);
 var playerList = [];
 
 pubnub = new PubNub({
-  publishKey: 'DEMO',
-  subscribeKey: 'DEMO',
+  publishKey: 'myPublishKey',
+  subscribeKey: 'mySubscribeKey',
   uuid: UniqueID,
 });
 
@@ -247,7 +247,7 @@ onbeforeunload = function() {
     // Query to server to unsub sync
     async:false,
     method: "GET",
-    url: "https://pubsub.pubnub.com/v2/presence/sub-key/DEMO/channel/playerlobby/leave?uuid=" + encodeURIComponent(UniqueID) 
+    url: "https://pubsub.pubnub.com/v2/presence/sub-key/mySubscribeKey/channel/playerlobby/leave?uuid=" + encodeURIComponent(UniqueID) 
   }).done(function(jqXHR, textStatus) {
     console.log( "Request done: " + textStatus );
   }).fail(function( jqXHR, textStatus ) {
@@ -269,7 +269,7 @@ globalUnsubscribe = function () {
 };
 ```
 
-Now where it says **DEMO**, replace those links with your Pub and Sub keys (you can get your keys from your PubNub Admin Dashboard).  Also don't forget in the ``$.ajax`` function to replace **DEMO** with your Sub key.
+Now where it says **myPublishKey and mySubscribeKey**, replace those links with your Pub and Sub keys (you can get your keys from your PubNub Admin Dashboard).  Also don't forget in the ``$.ajax`` function to replace **mySubscribeKey** with your Sub key.
 
 Now that you have copy and pasted the code into both documents, go ahead and save it and navigate to ``index.html`` and open it up with your web browser.  Then open up the developer console in your browser and observe how there are ``console.log`` statements being printed.  Open up different tabs/windows and observe how presence is interacting between the various clients.  If you open up a 3rd browser tab/window, you will notice that the clients won't receive a join event from the 3rd browser tab/window that we open.  This is because interval events have begun to occur since we set the **Announce Max** to **2** in the developer console.  You will have to wait 10 seconds before you get the updated join event from the PubNub servers.
 
@@ -284,8 +284,8 @@ document.write("Your Client's UUID is: ", UniqueID);
 var playerList = [];
 
 pubnub = new PubNub({
-  publishKey: 'DEMO',
-  subscribeKey: 'DEMO',
+  publishKey: 'myPublishKey',
+  subscribeKey: 'mySubscribeKey',
   uuid: UniqueID,
 });
 
@@ -307,7 +307,7 @@ onbeforeunload = function() {
     // Query to server to unsub sync
     async:false,
     method: "GET",
-    url: "https://pubsub.pubnub.com/v2/presence/sub-key/DEMO/channel/playerlobby/leave?uuid=" + encodeURIComponent(UniqueID) 
+    url: "https://pubsub.pubnub.com/v2/presence/sub-key/mySubscribeKey/channel/playerlobby/leave?uuid=" + encodeURIComponent(UniqueID) 
   }).done(function(jqXHR, textStatus) {
     console.log( "Request done: " + textStatus );
   }).fail(function( jqXHR, textStatus ) {
