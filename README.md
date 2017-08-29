@@ -102,7 +102,7 @@ When Global Here Now is checked, the ``pubnub.hereNow()`` function will return a
 
 ## PubNub Presence Sample Application
 
-This demo is a stripped down javascript example that will teach you the basics of how to properly integrate presence into your application.
+This demo is a stripped down javascript example that will teach you the basics of how to properly integrate presence into your application.  You can try the <a href="https://jordanschuetz.github.io/PubNub-Presence-Tutorial/">demo by clicking here</a>.
 
 Make sure before you start that you have these features enabled in your PubNub Admin Dashboard:
 
